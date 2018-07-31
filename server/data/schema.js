@@ -46,3 +46,5 @@ export const Schema = [`
 		query: Query
 	}
 `];
+
+export default Schema;

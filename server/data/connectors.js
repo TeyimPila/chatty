@@ -4,10 +4,20 @@ import faker from 'faker';
 
 
 //  initialize our database
+const op = Sequelize.Op;
 const db = new Sequelize('chatty', null, null, {
 	dialect: 'sqlite',
 	storage: './chatty.sqlite',
 	logging: false,
+	operatorsAliases: {
+		$and: op.and,
+		$or: op.or,
+		$eq: op.eq,
+		$gt: op.gt,
+		$lt: op.lt,
+		$lte: op.lte,
+		$like: op.like,
+	},
 });
 
 //  define groups
@@ -33,6 +43,8 @@ UserModel.belongsToMany(GroupModel, { through: 'GroupUser' });
 // messages are sent from users
 MessageModel.belongsTo(UserModel);
 
+UserModel.hasMany(UserModel, { as: 'Friends' });
+
 // messages are sent to groups
 MessageModel.belongsTo(GroupModel);
 
@@ -57,8 +69,11 @@ db.sync({ force: true }).then(() => _.times(GROUPS, () => GroupModel.create({
 		password,
 	}).then((user) => {
 		console.log(
-			'{email, username, password}',
-			`{${user.email}, ${user.username}, ${password}}`,
+			`{
+				email: ${user.email}, 
+				username: ${user.username}, 
+				password: ${password}
+			}`,
 		);
 		_.times(MESSAGES_PER_USER, () => MessageModel.create({
 			userId: user.id,
